@@ -16,9 +16,14 @@ export class Pexer {
 
     async open() {
         this.browser = await puppeteer.launch({
-            headless: Config.Headless
+            headless: Config.Headless,
+            slowMo: 50
         });
         this.page = await this.browser.newPage();
+        this.page.setViewport({
+            width: 1280,
+            height: 1024
+        });
         await this.page.goto(Config.BaseUrl);
     }
 

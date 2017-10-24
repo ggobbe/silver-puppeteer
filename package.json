@@ -7,7 +7,9 @@
     "moment": "^2.19.1",
     "puppeteer": "^0.12.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/puppeteer": "^0.12.0"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node main.js"
