@@ -11,7 +11,8 @@ export class Pexer {
     private continue = true;
 
     private pages = {
-        map: 'map.php'
+        map: 'map.php',
+        levelUp: 'levelup.php'
     }
 
     async open() {
@@ -41,13 +42,15 @@ export class Pexer {
     }
 
     async loop() {
-        await this.waitMonsters();
-        await this.killMonsters();
+        while (this.continue) {
+            await this.waitMonsters();
+            await this.killAllMonsters();
+        }
     }
 
     async waitMonsters() {
-        while (this.continue && !this.isMonsterPresent()) {
-            this.gotoPage(this.pages.map, true);
+        while (this.continue && !await this.isMonsterPresent()) {
+            await this.gotoPage(this.pages.map, true);
         }
     }
 
@@ -57,13 +60,31 @@ export class Pexer {
         return monster !== null;
     }
 
-    async killMonsters() {
+    async killAllMonsters() {
+        while (this.isMonsterPresent()){
+            await this.attackMonster();
+            await this.gotoPage(this.pages.map, true);
+        }        
+    }
+
+    async levelUp(){
 
     }
 
+    async attackMonster() {
+        await this.gotoPage(this.pages.map, false);
+        await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
+    }
+
     async gotoPage(page: string, force = true) {
-        await this.page.goto(`${Config.BaseUrl}/${page}`);
-        await this.page.waitForNavigation();
+        if(this.page.url().indexOf(this.pages.levelUp)){
+            await this.levelUp();
+        }
+
+        if (force || this.page.url().indexOf(page) !== -1) {
+            await this.page.goto(`${Config.BaseUrl}/${page}`);
+            await this.page.waitForNavigation();
+        }
     }
 
     async screenshot() {

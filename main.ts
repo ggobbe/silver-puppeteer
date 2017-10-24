@@ -4,6 +4,6 @@ import { Pexer } from './Pexer';
   var pexer = new Pexer();
   await pexer.open();
   await pexer.login();
-  await pexer.screenshot();
+  await pexer.loop();
   await pexer.close();
 })();
