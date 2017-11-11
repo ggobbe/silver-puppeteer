@@ -61,13 +61,13 @@ export class Pexer {
     }
 
     async killAllMonsters() {
-        while (this.isMonsterPresent()){
+        while (this.isMonsterPresent()) {
             await this.attackMonster();
             await this.gotoPage(this.pages.map, true);
-        }        
+        }
     }
 
-    async levelUp(){
+    async levelUp() {
 
     }
 
@@ -77,13 +77,11 @@ export class Pexer {
     }
 
     async gotoPage(page: string, force = true) {
-        if(this.page.url().indexOf(this.pages.levelUp)){
+        if (this.page.url().indexOf(this.pages.levelUp)) {
             await this.levelUp();
         }
-
         if (force || this.page.url().indexOf(page) !== -1) {
             await this.page.goto(`${Config.BaseUrl}/${page}`);
-            await this.page.waitForNavigation();
         }
     }
 
