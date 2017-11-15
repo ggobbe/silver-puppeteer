@@ -46,11 +46,11 @@ export class Pexer {
             }
 
             if (!await this.isMonsterPresent()) {
-                console.log('no mosnter');
                 if (await this.isLootPresent()) {
-                    console.log('yes');
                     await this.grabLoot();
-                    console.log('end');
+                } else {
+                    // force refresh
+                    await this.gotoPage(this.pages.map, true);
                 }
                 continue;
             }
@@ -62,7 +62,7 @@ export class Pexer {
     async open() {
         this.browser = await puppeteer.launch({
             headless: Config.Headless,
-            slowMo: Config.Fast === true ? 0 : 50
+            slowMo: Config.Fast === true ? 0 : 200
         });
         this.page = await this.browser.newPage();
         await this.page.setViewport({
@@ -82,8 +82,10 @@ export class Pexer {
         await this.page.type('input[name=login]', Config.Username);
         await this.page.type('input[name=pass]', Config.Password);
         const submitButton = await this.page.$('input[name=Submit2]');
-        await submitButton.click();
-        await this.page.waitForNavigation();
+        if (submitButton != null) {
+            await submitButton.click();
+            await this.page.waitForNavigation();
+        }
     }
 
     async isLogged() {
@@ -98,6 +100,7 @@ export class Pexer {
     async levelUp() {}
 
     async isOtherPlayerPresent() {
+        await this.gotoPage(this.pages.map);
         const player = await this.page.$('a[href^="fight.php?type=user"]');
         // TODO log who
         return player !== null;
@@ -137,21 +140,27 @@ export class Pexer {
 
     async killMonster() {
         console.log('killMonster()');
-        await this.attackMonster();
+
+        await this.gotoPage(this.pages.map);
+        console.log('open monster');
+        await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
+        console.log('monster opened');
 
         do {
             if (await this.isLevelUp()) {
                 await this.levelUp();
                 return;
             }
+            await this.attackMonster();
         } while (await this.isMonsterAlive());
     }
 
     async attackMonster() {
         console.log('attackMonster()');
-        await this.gotoPage(this.pages.map);
-        await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
+        await this.page.click(`input[src^="systeme/mag${Config.Spell}."]`);
+        // _driver.FindElementByCssSelector($"input[src^=\"systeme/mag{_configuration.Spell}.\"]").Click();
         await this.page.waitForNavigation();
+        console.log('monster attacked');
 
         // TODO magic or warrior attack?
     }

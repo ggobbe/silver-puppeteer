@@ -1,6 +1,10 @@
 import { Pexer } from './Pexer';
 
 (async () => {
-    var pexer = new Pexer();
-    pexer.run();
+    try {
+        var pexer = new Pexer();
+        pexer.run();
+    } catch (error) {
+        console.log('error', error);
+    }
 })();
