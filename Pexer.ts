@@ -148,7 +148,7 @@ export class Pexer {
     }
 
     async attackMonster() {
-        console.log('attackMonster');
+        console.log('attackMonster()');
         await this.gotoPage(this.pages.map);
         await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
         await this.page.waitForNavigation();
@@ -157,7 +157,7 @@ export class Pexer {
     }
 
     async isMonsterAlive() {
-        console.log('isMonsterAlive');
+        console.log('isMonsterAlive()');
         return false;
     }
 

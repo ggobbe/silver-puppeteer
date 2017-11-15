@@ -10,5 +10,9 @@
         "**/*.js": {
             "when": "$(basename).ts"
         }
-    }
+    },
+    "editor.formatOnSave": true,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 4,
+    "prettier.printWidth": 120
 }
