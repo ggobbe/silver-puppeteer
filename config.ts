@@ -6,7 +6,7 @@ export class Config {
     // General
     static BaseUrl = 'https://www.silver-world.net';
     static Headless = false;
-    static Fast = false;
+    static Fast = true;
 
     // XP
     static Monster = 419;

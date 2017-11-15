@@ -140,12 +140,8 @@ export class Pexer {
 
     async killMonster() {
         console.log('killMonster()');
-
         await this.gotoPage(this.pages.map);
-        console.log('open monster');
         await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
-        console.log('monster opened');
-
         do {
             if (await this.isLevelUp()) {
                 await this.levelUp();
@@ -157,12 +153,11 @@ export class Pexer {
 
     async attackMonster() {
         console.log('attackMonster()');
-        await this.page.click(`input[src^="systeme/mag${Config.Spell}."]`);
-        // _driver.FindElementByCssSelector($"input[src^=\"systeme/mag{_configuration.Spell}.\"]").Click();
+        var spellSelector = `input[src^="systeme/mag${Config.Spell}."]`;
+        await this.page.waitForSelector(spellSelector);
+        await this.page.click(spellSelector);
         await this.page.waitForNavigation();
-        console.log('monster attacked');
-
-        // TODO magic or warrior attack?
+        // TODO warrior attack
     }
 
     async isMonsterAlive() {
