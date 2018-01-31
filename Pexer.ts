@@ -61,6 +61,10 @@ export class Pexer {
 
     async open() {
         this.browser = await puppeteer.launch({
+            args: [
+                "--no-sandbox",
+                //"--disable-setuid-sandbox",
+            ],
             headless: Config.Headless,
             slowMo: Config.Fast === true ? 0 : 200
         });
@@ -97,7 +101,7 @@ export class Pexer {
         return false;
     }
 
-    async levelUp() {}
+    async levelUp() { }
 
     async isOtherPlayerPresent() {
         await this.gotoPage(this.pages.map);
@@ -106,15 +110,15 @@ export class Pexer {
         return player !== null;
     }
 
-    async goToSleep() {}
+    async goToSleep() { }
 
-    async updateProfileInfos() {}
+    async updateProfileInfos() { }
 
     async isPotionNeeded() {
         return false;
     }
 
-    async drinkPotions() {}
+    async drinkPotions() { }
 
     async isEnoughPA() {
         return true;
