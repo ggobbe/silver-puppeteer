@@ -62,6 +62,7 @@ export class Pexer {
     async open() {
         this.browser = await puppeteer.launch({
             args: [
+                "--disable-gpu",
                 "--no-sandbox",
                 //"--disable-setuid-sandbox",
             ],
