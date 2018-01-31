@@ -21,9 +21,9 @@ export class Pexer {
         if (!await this.isLogged()) {
             await this.close();
             return;
+
         }
 
-        // Empty existing level ups (not really necessary)
         while (await this.isLevelUp()) {
             await this.levelUp();
         }
@@ -65,8 +65,8 @@ export class Pexer {
                 "--no-sandbox",
                 //"--disable-setuid-sandbox",
             ],
-            headless: Config.Headless,
-            slowMo: Config.Fast === true ? 0 : 200
+            headless: Config.headless,
+            slowMo: Config.fast === true ? 0 : 200
         });
         this.page = await this.browser.newPage();
         await this.page.setViewport({
@@ -82,9 +82,9 @@ export class Pexer {
 
     async login() {
         console.log('login()');
-        await this.page.goto(Config.BaseUrl);
-        await this.page.type('input[name=login]', Config.Username);
-        await this.page.type('input[name=pass]', Config.Password);
+        await this.page.goto(Config.baseUrl);
+        await this.page.type('input[name=login]', Config.username);
+        await this.page.type('input[name=pass]', Config.password);
         const submitButton = await this.page.$('input[name=Submit2]');
         if (submitButton != null) {
             await submitButton.click();
@@ -98,10 +98,48 @@ export class Pexer {
     }
 
     async isLevelUp() {
-        return false;
+        await this.gotoPage(this.pages.map);
+        let levelUp = this.page.url().includes("levelup.php");
+        console.log('isLevelUp()', levelUp);
+        return levelUp;
     }
 
-    async levelUp() { }
+    async levelUp() {
+        console.log('levelUp()');
+
+        let pointsLeft = await this.page.evaluate(() => {
+            let element = document.querySelector('[name="left"]');
+            if (!element) {
+                return 0;
+            }
+            let elementValue = element.getAttribute('value');
+            if (!elementValue) {
+                return 0;
+            }
+            return parseInt(elementValue);
+        });
+
+        if (pointsLeft !== Config.levelUpTotal) {
+            throw 'The amount of points left is different than the amount of points to distribute.';
+        }
+
+        await this.distributePoints(Config.levelUp.constitution, '[name="Button"]');
+        await this.distributePoints(Config.levelUp.strength, '[name="Button2"]');
+        await this.distributePoints(Config.levelUp.agility, '[name="Button3"]');
+        await this.distributePoints(Config.levelUp.intelligence, '[name="Button4"]');
+
+        await this.page.waitFor(10000);
+        // TODO submit form
+        //await this.page.click('[name="Submit"]');
+    }
+
+    async distributePoints(points: number, selector: string) {
+        let distributed = 0;
+        while (distributed < points) {
+            await this.page.click(selector);
+            distributed++;
+        }
+    }
 
     async isOtherPlayerPresent() {
         await this.gotoPage(this.pages.map);
@@ -138,7 +176,7 @@ export class Pexer {
     async isMonsterPresent() {
         console.log('isMonsterPresent()');
         await this.gotoPage(this.pages.map);
-        var monster = await this.page.$(`img[src^="systeme/monster${Config.Monster}."]`);
+        var monster = await this.page.$(`img[src^="systeme/monster${Config.monster}."]`);
         return monster !== null;
     }
 
@@ -157,8 +195,8 @@ export class Pexer {
 
     async attackMonster() {
         console.log('attackMonster()');
-        var spellSelector = `input[src^="systeme/mag${Config.Spell}."]`;
-        await this.page.waitForSelector(spellSelector);
+        var spellSelector = `input[src^="systeme/mag${Config.spell}."]`;
+        var spellHandler = await this.page.waitForSelector(spellSelector);
         await this.page.click(spellSelector);
         await this.page.waitForNavigation();
         // TODO warrior attack
@@ -172,7 +210,7 @@ export class Pexer {
     async gotoPage(page: string, force = false) {
         console.log(`gotoPage('${page}')`);
         if (force || this.page.url().indexOf(page) < 0) {
-            await this.page.goto(`${Config.BaseUrl}/${page}`);
+            await this.page.goto(`${Config.baseUrl}/${page}`);
         }
     }
 
