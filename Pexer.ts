@@ -5,8 +5,8 @@ import { Browser, Page } from 'puppeteer';
 import { Config } from './config';
 
 export class Pexer {
-    private browser: Browser;
-    private page: Page;
+    private browser!: Browser;
+    private page!: Page;
 
     private continue = true;
 
@@ -62,7 +62,7 @@ export class Pexer {
     async open() {
         this.browser = await puppeteer.launch({
             args: [
-                "--disable-gpu",
+                //"--disable-gpu",
                 "--no-sandbox",
                 //"--disable-setuid-sandbox",
             ],
