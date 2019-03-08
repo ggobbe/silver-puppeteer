@@ -24,6 +24,8 @@ export class Pexer {
 
         }
 
+        this.logDebug("starting loop", true);
+
         while (this.continue) {
             while (await this.isOtherPlayerPresent()) {
                 await this.goToSleep();
@@ -232,7 +234,7 @@ export class Pexer {
 
     async logDebug(message: string, force = false) {
         if (force || Config.debug) {
-            console.log(message);
+            console.log(`[${moment().format()}] ${message}`);
         }
     }
 }
