@@ -5,6 +5,6 @@ import { Pexer } from './Pexer';
         var pexer = new Pexer();
         pexer.run();
     } catch (error) {
-        console.log('error', error);
+        console.trace('error', error);
     }
 })();
