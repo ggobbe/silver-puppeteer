@@ -11,7 +11,7 @@ export class Pexer {
     private continue = true;
 
     private pages = {
-        map: 'map.php',
+        map: 'map/view',
         levelUp: 'levelup.php'
     };
 
@@ -51,7 +51,7 @@ export class Pexer {
                 } else {
                     // force refresh
                     // TODO not necessary anymore? (auto refresh)
-                    //await this.gotoPage(this.pages.map, true);
+                    await this.gotoPage(this.pages.map, true);
                 }
                 continue;
             }
@@ -89,8 +89,10 @@ export class Pexer {
         await this.page.type('input[name=pass]', Config.password);
         const submitButton = await this.page.$('input[name=Submit2]');
         if (submitButton != null) {
-            await submitButton.click();
-            await this.page.waitForNavigation();
+            await Promise.all([
+                this.page.waitForNavigation(),
+                submitButton.click(),
+            ]);
         }
     }
 
@@ -100,10 +102,10 @@ export class Pexer {
     }
 
     async isLevelUp() {
-        await this.gotoPage(this.pages.map);
-        let levelUp = this.page.url().includes("levelup.php");
+        return false;
+        let levelUp = await this.page.$(`a[href="/${this.pages.levelUp}"]`);
         console.log('isLevelUp()', levelUp);
-        return levelUp;
+        return levelUp !== null;
     }
 
     async levelUp() {
@@ -185,7 +187,7 @@ export class Pexer {
         console.log('killMonster()');
         await this.gotoPage(this.pages.map);
         //await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
-        await this.page.click(`img[src^="/systeme/monster${Config.monster}."]`);
+        await this.clickNavigate(`img[src^="/systeme/monster${Config.monster}."]`);
         do {
             if (await this.isLevelUp()) {
                 await this.levelUp();
@@ -199,8 +201,8 @@ export class Pexer {
         console.log('attackMonster()');
         var spellSelector = `input[src^="systeme/mag${Config.spell}."]`;
         var spellHandler = await this.page.waitForSelector(spellSelector);
-        await this.page.click(spellSelector);
-        await this.page.waitForNavigation();
+        await this.clickNavigate(spellSelector);
+        //await this.page.waitForNavigation();
         // TODO warrior attack
     }
 
@@ -210,8 +212,8 @@ export class Pexer {
     }
 
     async gotoPage(page: string, force = false) {
-        console.log(`gotoPage('${page}')`);
         if (force || this.page.url().indexOf(page) < 0) {
+            console.log(`gotoPage('${page}') (url was: ${this.page.url()})`);
             await this.page.goto(`${Config.baseUrl}/${page}`);
         }
     }
@@ -222,5 +224,12 @@ export class Pexer {
             path: 'silver_' + moment().utc() + '.png',
             fullPage: true
         });
+    }
+
+    async clickNavigate(selector: string) {
+        await Promise.all([
+            this.page.waitForNavigation(), // The promise resolves after navigation has finished
+            this.page.click(selector), // Clicking the link will indirectly cause a navigation
+        ]);
     }
 }
