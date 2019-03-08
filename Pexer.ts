@@ -50,7 +50,8 @@ export class Pexer {
                     await this.grabLoot();
                 } else {
                     // force refresh
-                    await this.gotoPage(this.pages.map, true);
+                    // TODO not necessary anymore? (auto refresh)
+                    //await this.gotoPage(this.pages.map, true);
                 }
                 continue;
             }
@@ -164,7 +165,6 @@ export class Pexer {
     }
 
     async isLootPresent() {
-        console.log('isLootPresent()');
         return false;
     }
 
@@ -177,14 +177,15 @@ export class Pexer {
     async isMonsterPresent() {
         console.log('isMonsterPresent()');
         await this.gotoPage(this.pages.map);
-        var monster = await this.page.$(`img[src^="systeme/monster${Config.monster}."]`);
+        var monster = await this.page.$(`img[src^="/systeme/monster${Config.monster}."]`);
         return monster !== null;
     }
 
     async killMonster() {
         console.log('killMonster()');
         await this.gotoPage(this.pages.map);
-        await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
+        //await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
+        await this.page.click(`img[src^="/systeme/monster${Config.monster}."]`);
         do {
             if (await this.isLevelUp()) {
                 await this.levelUp();
