@@ -24,13 +24,13 @@ export class Pexer {
 
         }
 
-        while (await this.isLevelUp()) {
-            await this.levelUp();
-        }
-
         while (this.continue) {
             while (await this.isOtherPlayerPresent()) {
                 await this.goToSleep();
+            }
+
+            if (await this.isLevelUp()) {
+                await this.levelUp();
             }
 
             await this.updateProfileInfos(); // TODO only if not updated recently (or after attack???)
@@ -102,14 +102,14 @@ export class Pexer {
     }
 
     async isLevelUp() {
-        return false;
-        let levelUp = await this.page.$(`a[href="/${this.pages.levelUp}"]`);
-        console.log('isLevelUp()', levelUp);
+        var levelUp = await this.page.$(`a[href="/${this.pages.levelUp}"]`);
         return levelUp !== null;
     }
 
     async levelUp() {
         console.log('levelUp()');
+
+        await this.clickNavigate(`a[href="/${this.pages.levelUp}"]`);
 
         let pointsLeft = await this.page.evaluate(() => {
             let element = document.querySelector('[name="left"]');
@@ -124,17 +124,15 @@ export class Pexer {
         });
 
         if (pointsLeft !== Config.levelUpTotal) {
-            throw 'The amount of points left is different than the amount of points to distribute.';
+            throw `The amount of points left (${pointsLeft}) is different than the amount of points to distribute (${Config.levelUpTotal}).`;
         }
 
-        await this.distributePoints(Config.levelUp.constitution, '[name="Button"]');
-        await this.distributePoints(Config.levelUp.strength, '[name="Button2"]');
-        await this.distributePoints(Config.levelUp.agility, '[name="Button3"]');
-        await this.distributePoints(Config.levelUp.intelligence, '[name="Button4"]');
+        await this.distributePoints(Config.levelUp.constitution, '[name="Button"][value="+"]');
+        await this.distributePoints(Config.levelUp.strength, '[name="Button2"][value="+"]');
+        await this.distributePoints(Config.levelUp.agility, '[name="Button3"][value="+"]');
+        await this.distributePoints(Config.levelUp.intelligence, '[name="Button4"][value="+"]');
 
-        await this.page.waitFor(10000);
-        // TODO submit form
-        //await this.page.click('[name="Submit"]');
+        await this.clickNavigate('[name="Submit"]');
     }
 
     async distributePoints(points: number, selector: string) {
@@ -202,7 +200,6 @@ export class Pexer {
         var spellSelector = `input[src^="systeme/mag${Config.spell}."]`;
         var spellHandler = await this.page.waitForSelector(spellSelector);
         await this.clickNavigate(spellSelector);
-        //await this.page.waitForNavigation();
         // TODO warrior attack
     }
 
