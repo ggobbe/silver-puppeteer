@@ -78,12 +78,12 @@ export class Pexer {
     }
 
     async close() {
-        console.log('close()');
+        this.logDebug('close()');
         await this.browser.close();
     }
 
     async login() {
-        console.log('login()');
+        this.logDebug('login()');
         await this.page.goto(Config.baseUrl);
         await this.page.type('input[name=login]', Config.username);
         await this.page.type('input[name=pass]', Config.password);
@@ -97,7 +97,7 @@ export class Pexer {
     }
 
     async isLogged() {
-        console.log('isLogged()');
+        this.logDebug('isLogged()');
         return true;
     }
 
@@ -107,7 +107,7 @@ export class Pexer {
     }
 
     async levelUp() {
-        console.log('levelUp()');
+        this.logDebug('levelUp()', true);
 
         await this.clickNavigate(`a[href="/${this.pages.levelUp}"]`);
 
@@ -169,20 +169,20 @@ export class Pexer {
     }
 
     async grabLoot() {
-        console.log('grabLoot()');
+        this.logDebug('grabLoot()');
         await this.gotoPage(this.pages.map);
         await this.page.click('input[src^="systeme/obj"]');
     }
 
     async isMonsterPresent() {
-        console.log('isMonsterPresent()');
+        this.logDebug('isMonsterPresent()');
         await this.gotoPage(this.pages.map);
         var monster = await this.page.$(`img[src^="/systeme/monster${Config.monster}."]`);
         return monster !== null;
     }
 
     async killMonster() {
-        console.log('killMonster()');
+        this.logDebug('killMonster()');
         await this.gotoPage(this.pages.map);
         //await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
         await this.clickNavigate(`img[src^="/systeme/monster${Config.monster}."]`);
@@ -196,7 +196,7 @@ export class Pexer {
     }
 
     async attackMonster() {
-        console.log('attackMonster()');
+        this.logDebug('attackMonster()');
         var spellSelector = `input[src^="systeme/mag${Config.spell}."]`;
         var spellHandler = await this.page.waitForSelector(spellSelector);
         await this.clickNavigate(spellSelector);
@@ -204,19 +204,19 @@ export class Pexer {
     }
 
     async isMonsterAlive() {
-        console.log('isMonsterAlive()');
+        this.logDebug('isMonsterAlive()');
         return false;
     }
 
     async gotoPage(page: string, force = false) {
         if (force || this.page.url().indexOf(page) < 0) {
-            console.log(`gotoPage('${page}') (url was: ${this.page.url()})`);
+            this.logDebug(`gotoPage('${page}') (url was: ${this.page.url()})`);
             await this.page.goto(`${Config.baseUrl}/${page}`);
         }
     }
 
     async screenshot() {
-        console.log('screenshot()');
+        this.logDebug('screenshot()');
         await this.page.screenshot({
             path: 'silver_' + moment().utc() + '.png',
             fullPage: true
@@ -228,5 +228,11 @@ export class Pexer {
             this.page.waitForNavigation(), // The promise resolves after navigation has finished
             this.page.click(selector), // Clicking the link will indirectly cause a navigation
         ]);
+    }
+
+    async logDebug(message: string, force = false) {
+        if (force || Config.debug) {
+            console.log(message);
+        }
     }
 }
