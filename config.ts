@@ -8,6 +8,7 @@ export class Config {
     static headless = true;
     static fast = true;
     static debug = false;
+    static paMin = 10;
 
     // XP
     static monster = 419;

@@ -15,6 +15,10 @@ export class Pexer {
         levelUp: 'levelup.php'
     };
 
+    private profile = {
+        pa: 100
+    };
+
     async run() {
         await this.open();
         await this.login();
@@ -60,6 +64,7 @@ export class Pexer {
 
             await this.killMonster();
         }
+        process.exit();
     }
 
     async open() {
@@ -154,7 +159,25 @@ export class Pexer {
 
     async goToSleep() { }
 
-    async updateProfileInfos() { }
+    async updateProfileInfos() {
+        this.profile.pa = await this.page.evaluate(() => {
+            let paNeeded = document.querySelector('[href="/bonus"]');
+            if (!paNeeded || !paNeeded.previousSibling || !paNeeded.previousSibling.textContent) {
+                return -1;
+            }
+            return +paNeeded.previousSibling.textContent;
+        });
+
+        if (this.profile.pa <= Config.paMin) {
+            this.logDebug(`Stopping with ${this.profile.pa} PA left`, true);
+            this.stop();
+        }
+    }
+
+    async stop() {
+        this.continue = false;
+        process.exit();
+    }
 
     async isPotionNeeded() {
         return false;
@@ -186,7 +209,6 @@ export class Pexer {
     async killMonster() {
         this.logDebug('killMonster()');
         await this.gotoPage(this.pages.map);
-        //await this.page.click('a[href^="fight.php?type=monster"]'); // TODO this attacks any kind of monster?
         await this.clickNavigate(`img[src^="/systeme/monster${Config.monster}."]`);
         do {
             if (await this.isLevelUp()) {
