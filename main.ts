@@ -1,10 +1,10 @@
-import * as puppeteer from 'puppeteer';
+import { Pexer } from './Pexer';
 
 (async () => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://google.com');
-    await page.pdf({path: 'google.pdf'});
-  
-    await browser.close();
-  })();
+    try {
+        var pexer = new Pexer();
+        pexer.run();
+    } catch (error) {
+        console.trace('error', error);
+    }
+})();
