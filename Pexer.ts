@@ -168,7 +168,7 @@ export class Pexer {
             return +paNeeded.previousSibling.textContent;
         });
 
-        if (this.profile.pa <= Config.paMin) {
+        if (this.profile.pa > 0 && this.profile.pa <= Config.paMin) {
             this.logDebug(`Stopping with ${this.profile.pa} PA left`, true);
             this.stop();
         }
