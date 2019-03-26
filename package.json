@@ -8,8 +8,8 @@
         "puppeteer": "^1.13.0"
     },
     "devDependencies": {
-        "@types/puppeteer": "^1.12.2",
-        "typescript": "^3.3.3333"
+        "@types/puppeteer": "^1.12.3",
+        "typescript": "^3.3.4000"
     },
     "scripts": {
         "build": "tsc",
