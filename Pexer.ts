@@ -236,10 +236,7 @@ export class Pexer {
     async gotoPage(page: string, force = false) {
         if (force || this.page.url().indexOf(page) < 0) {
             this.logDebug(`gotoPage('${page}') (url was: ${this.page.url()})`);
-            await Promise.all([
-                this.page.waitForNavigation(), // The promise resolves after navigation has finished
-                await this.page.goto(`${Config.baseUrl}/${page}`)
-            ]);
+            await this.page.goto(`${Config.baseUrl}/${page}`)
         }
     }
 
