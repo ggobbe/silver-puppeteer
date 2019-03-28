@@ -57,8 +57,8 @@ export class Pexer {
                 } else {
                     // force refresh
                     // TODO not necessary anymore? (auto refresh)
-                    await this.gotoPage(this.pages.map, true);
                 }
+                await this.gotoPage(this.pages.map, true);
                 continue;
             }
 
@@ -190,13 +190,15 @@ export class Pexer {
     }
 
     async isLootPresent() {
-        return false;
+        await this.gotoPage(this.pages.map);
+        let loot = await this.page.$(`img[src^="/systeme/obj"]`);
+        return loot !== null;
     }
 
     async grabLoot() {
         this.logDebug('grabLoot()');
         await this.gotoPage(this.pages.map);
-        await this.page.click('input[src^="systeme/obj"]');
+        await this.page.click('img[src^="/systeme/obj"]');
     }
 
     async isMonsterPresent() {
