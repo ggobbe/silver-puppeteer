@@ -12,7 +12,8 @@ export class Pexer {
 
     private pages = {
         map: 'map/view',
-        levelUp: 'levelup.php'
+        levelUp: 'levelup.php',
+        castle: '/castle/enter'
     };
 
     private profile = {
@@ -33,6 +34,7 @@ export class Pexer {
         while (this.continue) {
             while (await this.isOtherPlayerPresent()) {
                 await this.goToSleep();
+                continue;
             }
 
             if (await this.isLevelUp()) {
@@ -41,14 +43,14 @@ export class Pexer {
 
             await this.updateProfileInfos(); // TODO only if not updated recently (or after attack???)
 
-            if (await this.isPotionNeeded()) {
-                await this.drinkPotions();
+            if (!await this.isEnoughPA()) {
+                await this.goToSleep();
                 continue;
             }
 
-            if (!await this.isEnoughPA()) {
-                await this.close();
-                return;
+            if (await this.isPotionNeeded()) {
+                await this.drinkPotions();
+                continue;
             }
 
             if (!await this.isMonsterPresent()) {
@@ -64,7 +66,7 @@ export class Pexer {
 
             await this.killMonster();
         }
-        process.exit();
+        this.close();
     }
 
     async open() {
@@ -86,7 +88,10 @@ export class Pexer {
 
     async close() {
         this.logDebug('close()');
-        await this.browser.close();
+        setTimeout(async () => {
+            await this.browser.close();
+            process.exit();
+        }, 5000);
     }
 
     async login() {
@@ -157,7 +162,11 @@ export class Pexer {
         return player !== null;
     }
 
-    async goToSleep() { }
+    async goToSleep() {
+        this.logDebug('goToSleep()');
+        this.gotoPage(this.pages.castle);
+        this.continue = false;
+    }
 
     async updateProfileInfos() {
         this.profile.pa = await this.page.evaluate(() => {
@@ -167,16 +176,6 @@ export class Pexer {
             }
             return +paNeeded.previousSibling.textContent;
         });
-
-        if (this.profile.pa > 0 && this.profile.pa <= Config.paMin) {
-            this.logDebug(`Stopping with ${this.profile.pa} PA left`, true);
-            this.stop();
-        }
-    }
-
-    async stop() {
-        this.continue = false;
-        process.exit();
     }
 
     async isPotionNeeded() {
@@ -186,7 +185,7 @@ export class Pexer {
     async drinkPotions() { }
 
     async isEnoughPA() {
-        return true;
+        return this.profile.pa <= 0 || this.profile.pa > Config.paMin;
     }
 
     async isLootPresent() {
@@ -237,7 +236,10 @@ export class Pexer {
     async gotoPage(page: string, force = false) {
         if (force || this.page.url().indexOf(page) < 0) {
             this.logDebug(`gotoPage('${page}') (url was: ${this.page.url()})`);
-            await this.page.goto(`${Config.baseUrl}/${page}`);
+            await Promise.all([
+                this.page.waitForNavigation(), // The promise resolves after navigation has finished
+                await this.page.goto(`${Config.baseUrl}/${page}`)
+            ]);
         }
     }
 
