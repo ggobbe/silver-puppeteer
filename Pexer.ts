@@ -99,7 +99,7 @@ export class Pexer {
         await this.page.goto(Config.baseUrl);
         await this.page.type('input[name=login]', Config.username);
         await this.page.type('input[name=pass]', Config.password);
-        const submitButton = await this.page.$('input[name=Submit2]');
+        const submitButton = await this.page.$('a.yellowButton');
         if (submitButton != null) {
             await Promise.all([
                 this.page.waitForNavigation(),
